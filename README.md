@@ -1,5 +1,5 @@
 ### Data
-Put the data from `drive link` into the data/raw directory. The name should be `HIGGS.csv.gz` exactly so that the correct file is called.
+Put the data from `(https://drive.google.com/file/d/1FAJfMkx86tyJP9pJqOn3SofvYGksSeP3/view?usp=drive_link)` into the data/raw directory. The name should be `HIGGS.csv.gz` exactly so that the correct file is called.
 
 ### Activate  Environment
 In your terminal run the following commands
