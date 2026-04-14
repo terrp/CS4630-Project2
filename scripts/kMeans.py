@@ -292,9 +292,8 @@ def build_and_save_pca_results(X_scaled, dims=(2, 5, 10), output_path="pca_resul
     return pca_results
 
 
-# -----------------------------
 # Load cleaned dataset
-# -----------------------------
+
 log("Loading dataset...")
 df = pd.read_csv("data/processed/higgs_200k.csv")
 log(f"Dataset loaded with shape: {df.shape}")
@@ -310,18 +309,14 @@ log("Scaling complete.")
 
 k = 2
 
-# -----------------------------
 # Regenerate PCA results from cleaned data
-# -----------------------------
 pca_results = build_and_save_pca_results(
     X_scaled,
     dims=(2, 5, 10),
     output_path="pca_results.pkl"
 )
 
-# -----------------------------
 # Run KMeans on full data
-# -----------------------------
 results = []
 pca_outputs = {}
 cluster_sizes_by_dataset = {}
@@ -337,9 +332,7 @@ full_labels, full_model, full_metrics, full_cluster_sizes = run_kmeans(
 results.append(full_metrics)
 cluster_sizes_by_dataset["Full 28D"] = full_cluster_sizes
 
-# -----------------------------
 # Run KMeans on regenerated PCA data
-# -----------------------------
 log("=== REGENERATED PCA DATA ===")
 for dim in [2, 5, 10]:
     log(f"Processing PCA {dim}D...")
@@ -364,9 +357,7 @@ for dim in [2, 5, 10]:
     pca_outputs[dim] = {"data": X_pca, "labels": labels}
     cluster_sizes_by_dataset[f"PCA {dim}D"] = cluster_sizes
 
-# -----------------------------
 # Save comparison table
-# -----------------------------
 log("Saving clustering comparison...")
 results_df = pd.DataFrame(results)
 print("\nClustering Comparison:\n")
@@ -374,9 +365,7 @@ print(results_df.to_string(index=False))
 results_df.to_csv("clustering_comparison.csv", index=False)
 log("Saved clustering_comparison.csv")
 
-# -----------------------------
 # Save cluster size details
-# -----------------------------
 log("Saving cluster size details...")
 cluster_size_rows = []
 for dataset_name, sizes in cluster_sizes_by_dataset.items():
@@ -389,16 +378,12 @@ cluster_sizes_df = pd.DataFrame(cluster_size_rows)
 cluster_sizes_df.to_csv("cluster_size_details.csv", index=False)
 log("Saved cluster_size_details.csv")
 
-# -----------------------------
 # Metric plots
-# -----------------------------
 log("Generating metric plots...")
 save_all_metric_graphs(results_df)
 save_cluster_size_chart(cluster_sizes_by_dataset)
 
-# -----------------------------
 # Scatter visualizations
-# -----------------------------
 log("Generating scatter visualizations...")
 
 log("Creating full 28D -> 2D PCA projection...")
