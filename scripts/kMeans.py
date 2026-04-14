@@ -33,6 +33,7 @@ def evaluate(X_data, labels, model):
     db = davies_bouldin_score(X_data, labels)
     comp = compactness(X_data, labels, model.cluster_centers_)
     sep = separation(model.cluster_centers_)
+
     return {
         "Dataset": "",
         "Silhouette": sil,
@@ -148,6 +149,66 @@ def get_pca_entry(pca_results, dim):
     return None, None
 
 
+def save_metric_bar_chart(results_df, metric_name, filename, higher_is_better=True):
+    log(f"Creating graph for {metric_name}...")
+
+    ordered = results_df[["Dataset", metric_name]].copy()
+
+    if higher_is_better:
+        ordered = ordered.sort_values(metric_name, ascending=False)
+    else:
+        ordered = ordered.sort_values(metric_name, ascending=True)
+
+    plt.figure(figsize=(10, 6))
+    bars = plt.bar(ordered["Dataset"], ordered[metric_name])
+    plt.title(f"{metric_name} by Dataset")
+    plt.xlabel("Dataset")
+    plt.ylabel(metric_name)
+    plt.xticks(rotation=20)
+    plt.tight_layout()
+
+    for bar in bars:
+        height = bar.get_height()
+        plt.text(
+            bar.get_x() + bar.get_width() / 2,
+            height,
+            f"{height:.4f}",
+            ha="center",
+            va="bottom",
+            fontsize=9
+        )
+
+    plt.savefig(filename)
+    plt.close()
+    log(f"Saved {filename}")
+
+
+def save_all_metric_graphs(results_df):
+    save_metric_bar_chart(results_df, "Silhouette", "metric_silhouette.png", higher_is_better=True)
+    save_metric_bar_chart(results_df, "Davies-Bouldin", "metric_davies_bouldin.png", higher_is_better=False)
+    save_metric_bar_chart(results_df, "Compactness", "metric_compactness.png", higher_is_better=False)
+    save_metric_bar_chart(results_df, "Separation", "metric_separation.png", higher_is_better=True)
+
+    log("Creating combined metric line chart...")
+
+    plt.figure(figsize=(10, 6))
+    x = np.arange(len(results_df["Dataset"]))
+    plt.plot(x, results_df["Silhouette"], marker="o", label="Silhouette")
+    plt.plot(x, results_df["Davies-Bouldin"], marker="o", label="Davies-Bouldin")
+    plt.plot(x, results_df["Compactness"], marker="o", label="Compactness")
+    plt.plot(x, results_df["Separation"], marker="o", label="Separation")
+    plt.xticks(x, results_df["Dataset"], rotation=20)
+    plt.xlabel("Dataset")
+    plt.ylabel("Metric Value")
+    plt.title("All Recorded Metrics")
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig("all_metrics_combined.png")
+    plt.close()
+
+    log("Saved all_metrics_combined.png")
+
+
 log("Loading dataset...")
 df = pd.read_csv("data/processed/higgs_200k.csv")
 log(f"Dataset loaded with shape: {df.shape}")
@@ -220,7 +281,10 @@ print(results_df.to_string(index=False))
 results_df.to_csv("clustering_comparison.csv", index=False)
 log("Saved clustering_comparison.csv")
 
-log("Generating visualizations...")
+log("Generating metric graphs...")
+save_all_metric_graphs(results_df)
+
+log("Generating cluster visualizations...")
 
 log("Creating full 28D -> 2D PCA projection...")
 pca_vis = PCA(n_components=2, random_state=42)
